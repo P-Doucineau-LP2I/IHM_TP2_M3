@@ -1,7 +1,9 @@
 import sys
-import PyQt5
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+import re  # Importer re pour les expressions régulières
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from interface_connexion import Ui_Form  # Importer l'IHM
+
+
 
 
 class ConnexionApp(QMainWindow, Ui_Form):
@@ -12,6 +14,8 @@ class ConnexionApp(QMainWindow, Ui_Form):
         self.bouton_valider.clicked.connect(self.valider_formulaire)
 
 
+
+
     def valider_formulaire(self):
         # Récupérer les valeurs des champs de saisie
         identifiant = self.lineEdit_identifiant.text()
@@ -19,29 +23,46 @@ class ConnexionApp(QMainWindow, Ui_Form):
         email = self.lineEdit_email.text()
 
 
+
+
         # Vérifier si les champs sont correctement remplis
         if not identifiant or not mot_de_passe or '@' not in email:
-            self.afficher_erreur("Erreur : veuillez remplir correctement tous les champs.")
+            self.afficher_message("Erreur : veuillez remplir correctement tous les champs.")
+            return
+
+
+
+
+        # Analyser la robustesse du mot de passe
+        resultat_analyse = self.analyser_mot_de_passe(mot_de_passe)
+        if resultat_analyse != "Le mot de passe est robuste.":
+            self.afficher_message(resultat_analyse)
+            return
+
+
+
+
+        # Si toutes les vérifications passent
+        self.afficher_message("Connexion réussie.")
+
+
+
+
+    def analyser_mot_de_passe(self, mot_de_passe):
+        # Vérifier la longueur du mot de passe
+        if (len(mot_de_passe) > 8):
+            return "Le mot de passe est robuste."
         else:
-            self.afficher_message("Connexion réussie.")
+            return "Le mot de passe est trop court."
 
 
-    # Fonction pour afficher une boîte de dialogue d'erreur
-    def afficher_erreur(self, message):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Critical)  # Utiliser une icône d'erreur
-        msg.setWindowTitle("Erreur")
-        msg.setText(message)
-        msg.exec_()
 
 
-    # Fonction pour afficher une boîte de dialogue d'information
+    # Fonction pour afficher un message dans le QLabel
     def afficher_message(self, message):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)  # Utiliser une icône d'information
-        msg.setWindowTitle("Information")
-        msg.setText(message)
-        msg.exec_()
+        self.label_message.setText(message)
+
+
 
 
 if __name__ == "__main__":
